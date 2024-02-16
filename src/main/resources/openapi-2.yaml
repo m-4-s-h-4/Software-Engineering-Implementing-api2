@@ -1,0 +1,135 @@
+openapi: 3.0.0
+info:
+  title: HarbourEats Quests API
+  version: 1.0.0
+  description: API for managing courier quests, tiers, and earnings in the HarbourEats Quests System.
+servers:
+  - url: https://api.harbour-eats.com/v1
+paths:
+  /couriers:
+    post:
+      summary: Create a new courier
+      operationId: createCourier
+      tags:
+        - Courier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierId'
+      responses:
+        '201':
+          description: Successfully created courier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierId'
+    get:
+      summary: Get all couriers' IDs
+      operationId: getAllCourierIds
+      tags:
+        - Courier
+      responses:
+        '200':
+          description: List of all couriers' IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /couriers/{courierId}/current-quest:
+    get:
+      summary: Get current quest progress and tier information for a courier
+      operationId: getCurrentQuestProgress
+      tags:
+        - Courier
+      parameters:
+        - name: courierId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the courier
+      responses:
+        '200':
+          description: Detailed information on the courier's current quest, including progress, tiers, and rewards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentQuestProgress'
+  /couriers/{courierId}/achievements:
+    get:
+      summary: Get a courier's total achievements including deliveries, earnings, and current tier progress
+      operationId: getCourierAchievements
+      tags:
+        - Courier
+      parameters:
+        - name: courierId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the courier
+      responses:
+        '200':
+          description: Comprehensive achievements data including total deliveries and earnings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierAchievements'
+components:
+  schemas:
+    CourierId:
+      type: object
+      properties:
+        courierId:
+          type: string
+          description: The unique identifier of the courier.
+    CurrentQuestProgress:
+      type: object
+      properties:
+        courierId:
+          type: string
+          description: The unique identifier of the courier.
+        currentTier:
+          type: string
+          description: Courier's current tier (e.g., bronze, silver, gold, diamond).
+        nextTier:
+          type: string
+          description: The next tier the courier will achieve (e.g., silver, gold, diamond). Optional, may not be present if at the highest tier.
+        ordersCompleted:
+          type: integer
+          description: Number of orders completed in the current tier.
+        ordersNeededForNextTier:
+          type: integer
+          description: Total number of orders needed to complete the current tier and advance to the next tier.
+        rewardForCurrentTier:
+          type: number
+          format: double
+          description: Reward (monetary value) for completing the current tier.
+        timeLeftToCompleteTier:
+          type: string
+          format: duration
+          description: Time left to complete the current tier and achieve the next tier, in ISO 8601 duration format.
+          
+    CourierAchievements:
+      type: object
+      properties:
+        courierId:
+          type: string
+          description: The unique identifier of the courier.
+        totalDeliveries:
+          type: integer
+          description: Total number of deliveries completed across all tiers.
+        totalEarnings:
+          type: number
+          format: double
+          description: Total earnings accumulated from all tiers.
+        currentTier:
+          type: string
+          description: Courier's current tier.
+        ordersLeftForNextTier:
+          type: integer
+          description: Number of orders left to reach the next tier
